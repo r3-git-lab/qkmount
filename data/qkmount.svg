@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#1e40af"/>
+    </linearGradient>
+    <linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbeafe"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#bg)"/>
+  <!-- cloud -->
+  <path fill="url(#cloud)" d="M92 168h84a34 34 0 0 0 4-67 52 52 0 0 0-99-8 30 30 0 0 0 11 75z"/>
+  <!-- mount pedestal / drive -->
+  <rect x="84" y="180" width="88" height="40" rx="9" fill="#0f172a" opacity="0.92"/>
+  <circle cx="104" cy="200" r="6" fill="#22d3ee"/>
+  <rect x="120" y="196" width="40" height="8" rx="4" fill="#64748b"/>
+  <!-- upward mount arrow -->
+  <path d="M128 84l26 30h-16v26h-20v-26h-16z" fill="#1d4ed8"/>
+</svg>

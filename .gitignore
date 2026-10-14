@@ -1,0 +1,23 @@
+# Build output
+/bin/
+/dist/
+/qkmount
+*.exe
+*.dll
+*.so
+
+# Local toolchain overrides (machine-specific; copy the .example to opt in)
+/hack/env.sh
+
+# Never commit credentials, logs or a user config
+*.log
+config.json
+/daemon.log
+
+# Editors / OS
+*.swp
+*~
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

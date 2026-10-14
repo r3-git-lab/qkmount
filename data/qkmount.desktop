@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=QKMount
+GenericName=Cloud Drive Mounter
+Comment=Mount cloud drives and remote servers as local folders
+Exec=qkmount ui
+Icon=qkmount
+Terminal=false
+Categories=Utility;FileManager;Network;
+Keywords=cloud;drive;mount;fuse;webdav;sftp;s3;dropbox;onedrive;google;
+StartupNotify=true

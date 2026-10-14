@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QKMount</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">▲</div>
+        <div class="brand-text">
+          <div class="brand-name">QKMount</div>
+          <div class="brand-sub">Cloud drives, locally</div>
+        </div>
+      </div>
+      <div class="sidebar-actions">
+        <button id="btn-add" class="primary">+ New Connection</button>
+      </div>
+      <ul id="conn-list" class="conn-list"></ul>
+      <div class="sidebar-footer">
+        <button id="btn-settings" class="ghost">Settings</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div id="empty" class="empty">
+        <div class="empty-logo">▲</div>
+        <h2>Welcome to QKMount</h2>
+        <p>Mount SFTP, FTP, WebDAV, S3, Google Drive, Dropbox and more as local drives.</p>
+        <button id="btn-add-2" class="primary">Add your first connection</button>
+      </div>
+
+      <section id="detail" class="detail hidden">
+        <header class="detail-head">
+          <div>
+            <h1 id="d-name">Connection</h1>
+            <div id="d-sub" class="subtle">—</div>
+          </div>
+          <div class="detail-actions">
+            <span id="d-status" class="badge">stopped</span>
+            <button id="btn-mount" class="primary">Mount</button>
+            <button id="btn-unmount" class="ghost">Unmount</button>
+            <button id="btn-open" class="ghost">Open Folder</button>
+            <button id="btn-edit" class="ghost">Edit</button>
+            <button id="btn-del" class="ghost danger">Delete</button>
+          </div>
+        </header>
+
+        <div class="cards">
+          <div class="card">
+            <div class="card-label">Mount point</div>
+            <div id="d-mount" class="card-value mono">—</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Type</div>
+            <div id="d-type" class="card-value">—</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Auto-mount</div>
+            <div id="d-auto" class="card-value">—</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Reconnects</div>
+            <div id="d-restarts" class="card-value">0</div>
+          </div>
+        </div>
+
+        <div id="d-message" class="message hidden"></div>
+
+        <h3 class="section-title">Details</h3>
+        <table id="d-opts" class="opts"></table>
+      </section>
+    </main>
+  </div>
+
+  <!-- Editor modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <h2 id="m-title">New Connection</h2>
+      <div class="field">
+        <label>Name</label>
+        <input id="m-name" type="text" placeholder="My Server" />
+      </div>
+      <div class="field">
+        <label>Type</label>
+        <select id="m-type"></select>
+      </div>
+      <div id="m-fields" class="fields"></div>
+      <details class="advanced">
+        <summary>Advanced</summary>
+        <div class="field">
+          <label>Mount point</label>
+          <input id="m-mountpoint" type="text" placeholder="(automatic)" />
+        </div>
+        <div class="field checkbox">
+          <input id="m-automount" type="checkbox" />
+          <label for="m-automount">Mount automatically on login</label>
+        </div>
+        <div class="field checkbox">
+          <input id="m-readonly" type="checkbox" />
+          <label for="m-readonly">Read-only</label>
+        </div>
+      </details>
+      <div id="m-error" class="error hidden"></div>
+      <div class="modal-actions">
+        <button id="m-cancel" class="ghost">Cancel</button>
+        <button id="m-save" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="app.js"></script>
+</body>
+</html>
