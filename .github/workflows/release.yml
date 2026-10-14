@@ -1,7 +1,6 @@
 name: Release
 
-# Builds prebuilt binaries for Linux, macOS and Windows and attaches them to a
-# GitHub Release.
+# Builds prebuilt binaries and attaches them to a GitHub Release.
 #
 #   * Pushing a version tag (e.g. v0.1.0) publishes a release.
 #   * Running the workflow manually only builds + uploads the binaries, which is
@@ -9,11 +8,13 @@ name: Release
 #
 # Build notes (QKMount links FUSE through cgo on Linux/macOS):
 #   * Linux  : cgo + libfuse3 headers, built with `-tags fuse3`.
-#   * macOS  : cgo + macFUSE headers (installed via the Homebrew cask).  macFUSE
-#              is dlopen()ed at runtime, so no kext is needed to *build*.
 #   * Windows: cgofuse ships a pure-Go WinFsp backend, so CGO is disabled and no
 #              WinFsp SDK is needed at build time (WinFsp is only needed at run
 #              time on the user's machine).
+#   * macOS  : cgo + macFUSE headers (installed via the Homebrew cask); macFUSE
+#              is dlopen()ed at runtime so no kext is needed to *build*.  The
+#              macOS job is optional, so a missing/queued macOS runner can never
+#              block a release; macOS assets are added whenever it succeeds.
 
 on:
   push:
@@ -29,17 +30,17 @@ permissions:
   contents: read
 
 jobs:
+  # ---- Required targets: Linux + Windows -----------------------------------
   build:
     name: ${{ matrix.goos }}/${{ matrix.goarch }}
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         include:
           - { runner: ubuntu-latest,    goos: linux,   goarch: amd64, tags: "fuse3", cgo: "1" }
           - { runner: ubuntu-24.04-arm, goos: linux,   goarch: arm64, tags: "fuse3", cgo: "1" }
-          - { runner: macos-latest,     goos: darwin,  goarch: arm64, tags: "",      cgo: "1" }
-          - { runner: macos-latest,     goos: darwin,  goarch: amd64, tags: "",      cgo: "1" }
           - { runner: ubuntu-latest,    goos: windows, goarch: amd64, tags: "",      cgo: "0" }
           - { runner: ubuntu-latest,    goos: windows, goarch: arm64, tags: "",      cgo: "0" }
     steps:
@@ -55,10 +56,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libfuse3-dev
-
-      - name: Install macFUSE headers (macOS)
-        if: matrix.goos == 'darwin'
-        run: brew install macfuse
 
       - name: Build
         env:
@@ -106,10 +103,69 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+  # ---- Optional target: macOS (never blocks a release) ----------------------
+  macos:
+    name: ${{ matrix.goos }}/${{ matrix.goarch }} (optional)
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: true
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-latest, goos: darwin, goarch: arm64, cgo: "1" }
+          - { runner: macos-latest, goos: darwin, goarch: amd64, cgo: "1" }
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install macFUSE headers
+        run: brew install macfuse
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: ${{ matrix.cgo }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          go build -trimpath -ldflags "-s -w" -o "dist/qkmount" ./cmd/qkmount
+
+      - name: Package
+        shell: bash
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          MANUAL_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then version="$GITHUB_REF_NAME"; else version="${MANUAL_TAG:-v0.0.0-dev}"; fi
+          name="qkmount_${version}_${GOOS}_${GOARCH}"
+          stage="stage/$name"
+          mkdir -p "$stage"
+          cp dist/qkmount "$stage/"
+          cp LICENSE README.md "$stage/"
+          tar -czf "dist/$name.tar.gz" -C stage "$name"
+          ls -l dist/
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: qkmount-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/*
+          if-no-files-found: error
+
+  # ---- Publish the release (only for version tags) --------------------------
   release:
     name: Publish release
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build, macos]
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/v') && needs.build.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

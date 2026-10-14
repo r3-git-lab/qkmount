@@ -44,6 +44,26 @@ $ qkmount ui                     # open the UI, start the daemon
 
 ## Install
 
+### Prebuilt binaries
+
+Every tagged [release](https://github.com/r3-git-lab/qkmount/releases) ships
+ready-to-run binaries, so you don't need a Go toolchain:
+
+| OS | Architecture | Asset |
+| --- | --- | --- |
+| Linux | x86-64 | `qkmount_<ver>_linux_amd64.tar.gz` |
+| Linux | arm64 | `qkmount_<ver>_linux_arm64.tar.gz` |
+| macOS | Apple silicon | `qkmount_<ver>_darwin_arm64.tar.gz` |
+| macOS | Intel | `qkmount_<ver>_darwin_amd64.tar.gz` |
+| Windows | x86-64 | `qkmount_<ver>_windows_amd64.zip` |
+| Windows | arm64 | `qkmount_<ver>_windows_arm64.zip` |
+
+Download the asset for your platform, unpack it, and put `qkmount` (or
+`qkmount.exe`) on your `PATH`. A `SHA256SUMS.txt` is published alongside the
+assets so you can verify the download. You only need the **runtime** FUSE layer
+for your OS — `libfuse3` (Linux), [macFUSE](https://macfuse.github.io/) (macOS)
+or [WinFsp](https://winfsp.dev/) (Windows).
+
 ### Build requirements
 
 QKMount links to the platform FUSE implementation through cgo:
